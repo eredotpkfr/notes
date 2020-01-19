@@ -85,7 +85,7 @@ gcc/g++ derleyicisinde bir  C programını derlerken genelde yazılımcılar kay
 
 ### C programlama dilinde veri boyutları
 
-> 1 Karakter 1 byte dir ve bildiğimiz gibi 1 byte 8 bittir, yaani 1 byte 2^8 = 256 farklı değer alabilir demektir. ASCII tablosunda 1 byte'ın yalnızca 7 biti kullanılır buda 2^7 = 128 farklı sayı demektir ve ASCII tablosunda da 128 karakter vardır. Son geriye kalan 1 bitlik kısım ise verinin karakter olduğunu belirtiyor olabilir tam net bir bilgim yok.
+> 1 Karakter 1 byte dir ve bildiğimiz gibi 1 byte 8 bittir, yaani 1 byte 2^8 = 256 farklı değer alabilir demektir. ASCII tablosunda 1 byte'ın yalnızca 7 biti kullanılır buda 2^7 = 128 farklı sayı demektir ve ASCII tablosunda da 128 karakter vardır.
 
 |      Type      | Storage Size |                     Value Range                      |
 | :------------: | :----------: | :--------------------------------------------------: |
