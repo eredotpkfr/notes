@@ -82,3 +82,8 @@ gcc/g++ derleyicisinde bir  C programını derlerken genelde yazılımcılar kay
 `(gdb) x/s 0x80484e0`  **0x80484e0** adresinden başlayarak string okur, adresteki stringi getirir.
 
 `(gdb) x/20i 0x80484e0` Adresindeki 20 instruction'u göster.
+
+
+
+> Kodu disassemble ettiğimizde `call` komutunu görürüz, `call` komutu fonksiyon çağırmaya yarar. Fonksiyonlar `stack` veri yapısı ile çalışır. Eğer bir C kodu çalışırken baştan aşağıya doğru çalışır ve her komutun adresi ardı ardına sıralanmıştır fakat `printf()` gibi bir fonksiyon çağrılmışsa `printf()` fonksiyonunun başladığı bir adres vardır ve ordan itibaren komutları çalıştırmaya devam eder. `printf()` fonksiyonu sona erdiğinde ise` main()` fonksiyonunda kaldığı yerden program çalışmaya devam eder, peki bu nasıl oluyo? Stack veri yapısı ile, ilerlerde daha ayrıntılı anlatılacak.
+
