@@ -83,7 +83,81 @@ gcc/g++ derleyicisinde bir  C programını derlerken genelde yazılımcılar kay
 
 `(gdb) x/20i 0x80484e0` Adresindeki 20 instruction'u göster.
 
+### C programlama dilinde veri boyutları
+
+> 1 Karakter 1 byte dir ve bildiğimiz gibi 1 byte 8 bittir, yaani 1 byte 2^8 = 256 farklı değer alabilir demektir. ASCII tablosunda 1 byte'ın yalnızca 7 biti kullanılır buda 2^7 = 128 farklı sayı demektir ve ASCII tablosunda da 128 karakter vardır. Son geriye kalan 1 bitlik kısım ise verinin karakter olduğunu belirtiyor olabilir tam net bir bilgim yok.
+
+|      Type      | Storage Size |                     Value Range                      |
+| :------------: | :----------: | :--------------------------------------------------: |
+|      char      |    1 byte    |               -128 to 127 or 0 to 255                |
+| unsigned char  |    1 byte    |                       0 to 255                       |
+|  signed char   |    1 byte    |                     -128 to 127                      |
+|      int       | 2 or 4 bytes | -32,768 to 32,767 or -2,147,483,648 to 2,147,483,647 |
+|  unsigned int  | 2 or 4 bytes |          0 to 65,535 or 0 to 4,294,967,295           |
+|     short      |   2 bytes    |                  -32,768 to 32,767                   |
+| unsigned short |   2 bytes    |                     0 to 65,535                      |
+|      long      |   8 bytes    |     -9223372036854775808 to 9223372036854775807      |
+| unsigned long  |   8 bytes    |              0 to 18446744073709551615               |
+
+İnanmıyorsanız deneyin :)
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+#include <float.h>
+
+int main(int argc, char** argv) {
+
+    printf("CHAR_BIT    :   %d\n", CHAR_BIT);
+    printf("CHAR_MAX    :   %d\n", CHAR_MAX);
+    printf("CHAR_MIN    :   %d\n", CHAR_MIN);
+    printf("INT_MAX     :   %d\n", INT_MAX);
+    printf("INT_MIN     :   %d\n", INT_MIN);
+    printf("LONG_MAX    :   %ld\n", (long) LONG_MAX);
+    printf("LONG_MIN    :   %ld\n", (long) LONG_MIN);
+    printf("SCHAR_MAX   :   %d\n", SCHAR_MAX);
+    printf("SCHAR_MIN   :   %d\n", SCHAR_MIN);
+    printf("SHRT_MAX    :   %d\n", SHRT_MAX);
+    printf("SHRT_MIN    :   %d\n", SHRT_MIN);
+    printf("UCHAR_MAX   :   %d\n", UCHAR_MAX);
+    printf("UINT_MAX    :   %u\n", (unsigned int) UINT_MAX);
+    printf("ULONG_MAX   :   %lu\n", (unsigned long) ULONG_MAX);
+    printf("USHRT_MAX   :   %d\n", (unsigned short) USHRT_MAX);
+
+    return 0;
+}
+```
 
 
-> Kodu disassemble ettiğimizde `call` komutunu görürüz, `call` komutu fonksiyon çağırmaya yarar. Fonksiyonlar `stack` veri yapısı ile çalışır. Bir C kodu çalışırken baştan aşağıya doğru çalışır ve her komutun adresi ardı ardına sıralanmıştır fakat `printf()` gibi bir fonksiyon çağrılmışsa `printf()` fonksiyonunun başladığı bir adres vardır ve ordan itibaren komutları çalıştırmaya devam eder. `printf()` fonksiyonu sona erdiğinde ise` main()` fonksiyonunda kaldığı yerden program çalışmaya devam eder, peki bu nasıl oluyo? Stack veri yapısı ile, ilerlerde daha ayrıntılı anlatılacak.
+
+Bir integer 4 bytlık yer kaplar, şunu unutmamak lazım bir adres en fazla 1 byte'lık veri tutabilir. Eğer biz 1 sasıyısını RAM de tutacaksak 00000001 şeklinde bir adreste tutabiliriz fakat veri int olarak atandığı için 4 bytlık yer kaplayacaktır. Yaani RAM de 00000000 00000000 00000000 0000001 şeklinde depolanacaktır ve 4 adresi işgal edecektir.
+
+Burada adreste RAM de veriyi tutarken, endianness kavramı devreye giriyor, tutulacak değerin önemli biti en baştada olabilir en sondada.
+
+### Memory Segmentation
+
+#### Text (Code Segment, Fixed Size)
+
+Program çalıştırıldığında oluşturulur, programın assembly kodlarının tutulduğu bölgedir, boyutu runtime sırasında değiştirilemez. Program çalıştığında `rip` bu segmentin en başdaki ilk komutu, instruction'u gösterir, daha sonra bu instruction'un boyutu alınır ve eklenir ve bir sonraki instruction bulunur en son aşamada ise `rip` in gösterdiği instruction çalıştırılır.
+
+#### Data & Bss (Fixed Size)
+
+data ve bss setmentlerinde, program sırasında oluşturulan global ve static değişkenler tutulur. Eğer değişken initialize olarak atanmış ise data da, eğer initialize atanmamış ise bss segmentinde tutulur. data & bss segmentlerinin boyutu runtime sırasında değiştirilemez.
+
+#### Heap (Unfixed Size)
+
+Heap segmenti programcının direkt erişip işlem yapabildiği alandır. Programcı `malloc`, `calloc`, `free` gibi fonksiyonlarla heap alanında işlemler yapabilir. Heap alanında sıralı olarak yer ayırtılır.
+
+#### Stack (Unfixed Size)
+
+Stack veri yapısı **FILO (First In Last Out)** şeklindedir, ilk giren en son çıkar. Heap alanındakinden farklı olarak adresler sıralı değildir.
+
+> Kodu disassemble ettiğimizde `call` komutunu görürüz, `call` komutu fonksiyon çağırmaya yarar. Fonksiyonlar `stack` veri yapısı ile çalışır. Bir C kodu çalışırken baştan aşağıya doğru çalışır ve her komutun adresi ardı ardına sıralanmıştır fakat `printf()` gibi bir fonksiyon çağrılmışsa `printf()` fonksiyonunun başladığı bir adres vardır ve ordan itibaren komutları çalıştırmaya devam eder. `printf()` fonksiyonu sona erdiğinde ise` main()` fonksiyonunda kaldığı yerden program çalışmaya devam eder, peki bu nasıl oluyo? Stack veri yapısı ile.
+>
+> ESP: Stack Pointer, `push` ekleme yapar `pop` ise çıkarma yapar bu nedenle **stacks are not fixes**. Stack pointer her zaman stack'e son ekleneni gösterir.
+>
+> EBP: Local Base Pointer, burada stack frame vardır ve 2 tane pointer vardır bu pointerlardan biri SFP Saved Frame Pointer, SFP stack pointer'ın gösterdiğinin bir öncekini tutar. Diğer pointer ise return address tir buda main fonksiyonundaki instruction'a geri döneceği adresi tutar.
+
+
 
