@@ -138,20 +138,20 @@ Web admin arayüzüne yukarıda yapılan ayarlar sonucunda şu şemadan ulaşıl
 
 
 1. Detail
-  Zombinin sistemi hakkında bilgilerin olduğu sekmedir.
+    Zombinin sistemi hakkında bilgilerin olduğu sekmedir.
 
 2. Logs
-  Zombi browser üzerinde yapılmış işlemlerin zaman damgalı şekilde loglarının olduğu sekmedir.
+    Zombi browser üzerinde yapılmış işlemlerin zaman damgalı şekilde loglarının olduğu sekmedir.
 
 3. Commands
-  Zombi browser üzerinde komut çalıştırabileceğimiz sekmedir.
+    Zombi browser üzerinde komut çalıştırabileceğimiz sekmedir.
 
 4. Rider
-  Zombi browser üzerinden request gönderebileceğimiz sekmedir. “Forge Request” sekmesinden request yapabilir, 
-  yapılan requestleri “History” sekmesinden görüntüleyebilirsiniz.
+    Zombi browser üzerinden request gönderebileceğimiz sekmedir. “Forge Request” sekmesinden request yapabilir, 
+    yapılan requestleri “History” sekmesinden görüntüleyebilirsiniz.
 
 5. Network
-  Zombi ile saldırgan arasındaki ağ bağlantısının görselleştirilmiş halinin olduğu sekmedir.
+    Zombi ile saldırgan arasındaki ağ bağlantısının görselleştirilmiş halinin olduğu sekmedir.
 
   
 
