@@ -93,3 +93,67 @@ if __name__ == '__main__':
 
 Yukarıdaki kod arkaplanda 2 saniyede bir google'a istek atar ve dönen status_code ları bir array'de toplar ve bunu yaparken kodunuz bloke olmaz `for _ in range(1, 6): print(_)`  satırında anlaşılıyor.
 
+### Python threading with queue and working workers :)
+
+```python
+#!/usr/bin/python3
+import logging
+import threading
+import time
+from queue import Queue
+
+def thread_function(name):
+    logging.info("Thread %s: starting", name)
+    time.sleep(2)
+    logging.info("Thread %s: finishing", name)
+
+if __name__ == "__main__":
+    format = "%(asctime)s: %(message)s"
+    logging.basicConfig(format=format, level=logging.INFO,
+                        datefmt="%H:%M:%S")
+
+    threads = list()
+    for index in range(3):
+        logging.info("Main    : create and start thread %d.", index)
+        x = threading.Thread(target=thread_function, args=(index,))
+        threads.append(x)
+        x.start()
+
+    for index, thread in enumerate(threads):
+        logging.info("Main    : before joining thread %d.", index)
+        thread.join()
+        logging.info("Main    : thread %d done", index)
+
+# ------------------------- #
+
+def worker(q):
+	while True: # Worker looking for new data in queue
+		get = q.get() # Oopss, getting some data!
+		q.task_done()
+		if get == None: break
+
+		work(get)
+
+	return True
+
+
+def work(param):
+	print(param)
+
+queue = Queue() # Create FIFO(FirstInFirstOut) queue
+
+for _ in range(1, 6): # Create 5 worker, workers are working on work :)
+	threading.Thread(
+		target = worker,
+		args = [queue]
+	).start()
+
+for _ in range(1, 10):
+	queue.put(_)
+
+for _ in range(1, 6):
+	queue.put(None)
+
+queue.join()
+```
+
