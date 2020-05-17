@@ -54,9 +54,10 @@ sudo service rabbitmq-server restart # yeniden başlatır.
 > Config file `/etc/rabbitmq/rabbitmq-env.conf`
 
 ### Python ile RabbitMQ entegrasyonu
+
 Python ile `RabbitMQ` servisine bağlanmak için `pika` isminde bir modül kullanmamız gerekiyor, modülü yüklemek için `pip3 install pika --upgrade` şeklinde bir komut çalıştırmak yeterli.
 
-### rabbitmq_producer.py
+#### rabbitmq_producer.py
 
 ```python
 #!/usr/bin/python3
@@ -114,7 +115,7 @@ for _ in data:
 
 
 
-### rabbitmq_consumer.py
+#### rabbitmq_consumer.py
 
 ```python
 #!/usr/bin/python3
