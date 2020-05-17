@@ -319,7 +319,7 @@ def one_under_score():
         print(_)
 ```
 
-Eğer herhangi bir `class` ın içerisindeki değişken `__` ile başlıyor ise (`self.__var`) python interpreter'ı bunu `private` değişken olarak atar ve `_[class_name]__[değişken]` şeklinde bir yapıya dönüştürür (`[obje]._[class_name]__[değişken]` şeklinde de erişilir), başka `class` lardan bu değişkene erişilemez. objenin `dir()` çıktısına baktığımızda `__var` şeklinde bir değişken göremeyiz. Bu kullanım oldukça zor olduğu için python programcıları kendi aralarında `_var` şeklinde bir takma isim kullanırlar, bir programda `_` ile başlayan bir değişken gördüğünüzde anlamalısınızki bu bir `private` değişken ve yalnızca bu `class` içerisinde kullanılabilir. Aslında `private` variable değildir fakat `__`'nin kullanımı zor olduğu için bu şekilde bir kullanımda vardır. `_var` yaptığınızda aslında başka class'lardan bu değişkene erişebilirsiniz `print(self._var)` satırında görülüyor :)  `print(self.__var)` satırında hata alcağız aynı şekilde yorum satırındaki (`# print(object.__var)`) `#` 'i kaldırırsakta hata alırız.
+Eğer herhangi bir `class` ın içerisindeki değişken `__` ile başlıyor ise (`self.__var`) python interpreter'ı bunu `private` değişken olarak atar ve `_[class_name]__[değişken]` şeklinde bir yapıya dönüştürür (`[obje]._[class_name]__[değişken]` şeklinde de erişilir), başka `class` lardan bu değişkene erişilemez. objenin `dir()` çıktısına baktığımızda `__var` şeklinde bir değişken göremeyiz bunun yerine `_class___var` şeklinde bir değişken vardır. Bu kullanım oldukça zor olduğu için python programcıları kendi aralarında `_var` şeklinde bir takma isim kullanırlar, bir programda `_` ile başlayan bir değişken gördüğünüzde anlamalısınızki bu bir `private` değişken ve yalnızca bu `class` içerisinde kullanılabilir. Aslında `private` variable değildir fakat `__`'nin kullanımı zor olduğu için bu şekilde bir kullanımda vardır. `_var` yaptığınızda aslında başka class'lardan bu değişkene erişebilirsiniz `print(self._var)` satırında görülüyor :)  `print(self.__var)` satırında hata alcağız aynı şekilde yorum satırındaki (`# print(object.__var)`) `#` 'i kaldırırsakta hata alırız.
 
 ```python
 __var
@@ -368,7 +368,7 @@ for _ in range(0, 10):
 
 Satırında örnek kullanım vardır.
 
-Ayrıca `_` nin python interpreter'ında farklı bir anlamı daha vardır buda son verinizi işlemi kendi içerisinde tutar örn;
+Ayrıca `_` nin python interpreter'ında farklı bir anlamı daha vardır buda son verinizi kendi içerisinde tutar örn;
 
 ```python
 Python 3.8.2 (default, Apr 27 2020, 15:53:34) 
