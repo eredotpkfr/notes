@@ -157,3 +157,6 @@ mq = RabbitMQ('127.0.0.1', 5672, 'guest', 'guest')
 mq.get()
 ```
 
+> RabbitMQ default olarak `5672`. portta çalışır.
+>
+> RabbitMQ'Nun WebUI kısmını aktif etmek istersek `rabbitmq-plugins enable rabbitmq_management` şeklinde komut çalıştırmamız gerekir, WebUI ise default olarak `15672`. portta çalışır. `http://127.0.0.1:15672/`.
