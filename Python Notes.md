@@ -386,3 +386,36 @@ Type "help", "copyright", "credits" or "license" for more information.
 ```
 
 Eğer bir değişkenin sağında ve solunda `__` görürseniz bu şu anlama gelir, initialized değişken yada fonksiyondur, genelde fonksiyonlarda kullanılır. Yukarıdaki örnekte `def __init__(self):` fonksiyonu python tarafından ön tanımlı olarak gelen bir yapıcı (`constructor`) fonksiyondur.
+
+### Python Decorators
+
+```python
+#!/usr/bin/env python3
+
+def my_decorator(func):
+    def wrapper():
+        print("Something is happening before the function is called.")
+        func()
+        print("Something is happening after the function is called.")
+    return wrapper
+
+def say_whee():
+    print("Whee!")
+
+say_whee = my_decorator(say_whee)
+
+## ------------------------------------------------------- ##
+
+def mydec(func):
+    def wrapper(x, y):
+        return x+1+y+1
+
+    return wrapper
+
+@mydec
+def topla(a, b):
+    return a + b
+
+print(topla(1,1))
+```
+
