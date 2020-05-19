@@ -55,6 +55,8 @@ sudo service rabbitmq-server restart # yeniden başlatır.
 
 ### Python ile RabbitMQ entegrasyonu
 
+`RabbitMQ` default olarak `5672`. portta çalışır. `RabbitMQ`'nun `WebUI` kısmını aktif etmek istersek `rabbitmq-plugins enable rabbitmq_management` şeklinde komut çalıştırmamız gerekir, `WebUI` ise default olarak `15672`. portta çalışır. `http://127.0.0.1:15672/`.
+
 Python ile `RabbitMQ` servisine bağlanmak için `pika` isminde bir modül kullanmamız gerekiyor, modülü yüklemek için `pip3 install pika --upgrade` şeklinde bir komut çalıştırmak yeterli.
 
 #### rabbitmq_producer.py
@@ -158,6 +160,88 @@ mq = RabbitMQ('127.0.0.1', 5672, 'guest', 'guest')
 mq.get()
 ```
 
-> RabbitMQ default olarak `5672`. portta çalışır.
+### Birden fazla worker çalıştırmak
+
+Eğer `RabbitMQ` servisini yeniden başlatırsanız kuyruğunuzdaki veriler kaybolur. Kaybolmamasını istiyorsanız kuyruğunuza `durable` özelliği eklemelisiniz, `durable` özelliği eklediğinizde `producer` ve `consumer` kodlarınızda değişecektir. Aynı zamanda veriyi `publish` ederken `delivery_mode` değerini `2` olarak atayıp mesajın kalıcı olmasını sağlamanız gerekir. Bunu yaptığınızda verinizi `RabbitMQ` diske yazar yapmazsanız `RAM`'e kayıt eder.
+
+> #### Not
 >
-> RabbitMQ'Nun WebUI kısmını aktif etmek istersek `rabbitmq-plugins enable rabbitmq_management` şeklinde komut çalıştırmamız gerekir, WebUI ise default olarak `15672`. portta çalışır. `http://127.0.0.1:15672/`.
+> `RabbitMQ` ya kuyruğu `durable` yapmasını söylemeniz hiç veri kaybolmayacağı anlamına gelmez verileriniz diske yazılma sırasında da kayıp olabilir. Tamamen güvenli olmasını istiyorsanız `Publisher Confirms`  konusuna bakınız.
+
+Bazen worker ların yaptığı işler uzayabiliryor ve işin bitmesini beklemek gerekebiliyor fakat `RabbitMQ` bundan hiç anlamaz `RabbitMQ` kuyruğa düşen mesajları workerlara anında iletir ve workerlar gereken işi yapamayabilir. Bunun olmaması için `RabbitMQ` ya bunu söylemeniz gerekiyor bunu yapmak için ise `basic.qos` protokolünü kullanmasını söylemelisiniz aşağıdaki örnekte `channel.basic_qos(prefetch_count = 1)` satırında bu işlem yapılmış, burada `prefetch_count = 1` denilerek 1 worker'a 1 den fazla mesaj gitmesin  yaani bir diğer mesajın gitmesi için öncekinin işinin bitmesini bekle şeklinde uyarılmıştır.
+
+Bütün bunları yaptıktan sonra `RabbitMQ` nun mesajların doğru iletilip iletilmediğini anlaması için basic `Acknowledgment` ekleyebiliriz worker kısmında `ch.basic_ack(delivery_tag = method.delivery_tag)` satırında bu işlem yapılmış. En son aşamada ise kodlarımız aşağıdaki gibi olacaktır.
+
+#### task.py
+
+```python
+#!/usr/bin/env python
+
+import pika
+import sys
+
+connection = pika.BlockingConnection(
+	pika.ConnectionParameters(
+		host = 'localhost'
+	)
+)
+
+channel = connection.channel()
+
+channel.queue_declare(
+	queue = 'task_queue',
+	durable=True
+)
+
+message = ' '.join(sys.argv[1:]) or "Hello World!"
+
+channel.basic_publish(
+    exchange = '',
+    routing_key = 'task_queue',
+    body = message,
+    properties = pika.BasicProperties(
+        delivery_mode = 2,  # make message persistent
+    ))
+
+print(" [x] Sent %r" % message)
+
+connection.close()
+```
+
+#### worker.py
+
+```python
+#!/usr/bin/env python
+
+import pika
+import time
+
+connection = pika.BlockingConnection(
+	pika.ConnectionParameters(
+		host = 'localhost'
+	)
+)
+
+channel = connection.channel()
+
+channel.queue_declare(
+	queue = 'task_queue',
+	durable = True
+)
+
+print(' [*] Waiting for messages. To exit press CTRL+C')
+
+
+def callback(ch, method, properties, body):
+    print(" [x] Received %r" % body)
+    time.sleep(body.count(b'.'))
+    print(" [x] Done")
+    ch.basic_ack(delivery_tag = method.delivery_tag)
+
+
+channel.basic_qos(prefetch_count=1)
+channel.basic_consume(queue = 'task_queue', on_message_callback = callback)
+
+channel.start_consuming()
+```
+
