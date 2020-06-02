@@ -182,7 +182,8 @@ import sys
 
 connection = pika.BlockingConnection(
 	pika.ConnectionParameters(
-		host = 'localhost'
+		host = 'localhost',
+        heartbeat = 0
 	)
 )
 
@@ -218,7 +219,8 @@ import time
 
 connection = pika.BlockingConnection(
 	pika.ConnectionParameters(
-		host = 'localhost'
+		host = 'localhost',
+        heartbeat = 0
 	)
 )
 
@@ -239,9 +241,12 @@ def callback(ch, method, properties, body):
     ch.basic_ack(delivery_tag = method.delivery_tag)
 
 
-channel.basic_qos(prefetch_count=1)
+channel.basic_qos(prefetch_count = 1)
 channel.basic_consume(queue = 'task_queue', on_message_callback = callback)
 
 channel.start_consuming()
 ```
 
+> #### NOT
+>
+> RabbitMQ'da producer ve consumer birbirleri ile haberleşirler ve belirli aralıklarla consumer producer'a `heartbeat (kalp atışı)` yollar. Eğer bu aralığı geçecek sürede bir işlem yapılıyor ise RabbitMQ worker'ınızı öldürür ve bağlantıyı sonlandırır. Bu aşamada `heartbeat` değerini arttırmak bağlantının sonlanmaması için iyi bir çözümdür. Python da `heartbeat = 0` şeklinde connection'a değer verebiliyoruz. Default olarak `60` değerini alır, eğer sizin worker'ınız `60` saniyeyi aşacak bir işlem yapıyor ise muhtemelen RabbitMQ bağlantıyı sonlandırıp `timeout` atacaktır, `heartbeat = 1800` gibi yüksek değerler vermek bu problemin önüne geçecektir. Tabi eğer isterseniz benim yukarıda yaptığım gibi `0` değerini verebilirsiniz, `0` değerini vermek `heartbeat`i devre dışı bırakır ve TCP bağlantısı sürekli açık kalır.

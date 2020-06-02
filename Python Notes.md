@@ -41,6 +41,32 @@ response_content = requests.get(url).content.decode('UTF-8', errors = 'ignore')
 print(response_content)
 ```
 
+### Python json
+
+```python
+#!/usr/bin/env python3
+
+import json
+
+dict_ = '{"a": 1, "b": 2}'
+
+print(json.loads(dict_)) # Converts string to dict
+print(type(json.loads(dict_))) # <class 'dict'>
+
+dict = {'a': 1, 'b': 2}
+print(json.dumps(dict_)) # Converts dict to string
+print(type(json.dumps(dict_))) # <class 'str'>
+
+x = {'a': 1, 'b': 2}
+a = json.dumps(x, indent = 4)
+print(a)
+# separators = (". ", " = ") you can change default separators like this parameter
+# sort_keys = True results sorted with this parameter
+
+```
+
+
+
 ### Python RepeatedTimer with threading, your code is not blocked during running
 
 ```python
