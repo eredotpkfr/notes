@@ -182,7 +182,7 @@ import sys
 
 connection = pika.BlockingConnection(
 	pika.ConnectionParameters(
-		host = 'localhost',
+        host = 'localhost',
         heartbeat = 0
 	)
 )
@@ -219,7 +219,7 @@ import time
 
 connection = pika.BlockingConnection(
 	pika.ConnectionParameters(
-		host = 'localhost',
+        host = 'localhost',
         heartbeat = 0
 	)
 )
