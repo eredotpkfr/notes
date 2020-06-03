@@ -250,3 +250,121 @@ channel.start_consuming()
 > #### NOT
 >
 > RabbitMQ'da producer ve consumer birbirleri ile haberleşirler ve belirli aralıklarla consumer producer'a `heartbeat (kalp atışı)` yollar. Eğer bu aralığı geçecek sürede bir işlem yapılıyor ise RabbitMQ worker'ınızı öldürür ve bağlantıyı sonlandırır. Bu aşamada `heartbeat` değerini arttırmak bağlantının sonlanmaması için iyi bir çözümdür. Python da `heartbeat = 0` şeklinde connection'a değer verebiliyoruz. Default olarak `60` değerini alır, eğer sizin worker'ınız `60` saniyeyi aşacak bir işlem yapıyor ise muhtemelen RabbitMQ bağlantıyı sonlandırıp `timeout` atacaktır, `heartbeat = 1800` gibi yüksek değerler vermek bu problemin önüne geçecektir. Tabi eğer isterseniz benim yukarıda yaptığım gibi `0` değerini verebilirsiniz, `0` değerini vermek `heartbeat`i devre dışı bırakır ve TCP bağlantısı sürekli açık kalır.
+
+### RabbitMQ da öncelik tanımlama 
+
+#### producer.py
+
+```python
+from json import dumps
+import pika
+
+class RabbitMQ: # RabbitMQ class_
+	### Initialized function for RabbitMQ class_ ###
+
+	def __init__(self, host = '127.0.0.1', port = 5672, username = 'guest', password = 'guest'):
+		self.host = host
+		self.port = port
+		self.username = username
+		self.password = password
+
+		return None
+
+	def connection(self): # Returns RabbitMQ connection
+		return pika.BlockingConnection(
+            pika.ConnectionParameters(
+				host = self.host,
+				port = self.port,
+				heartbeat = 0, # Set disable Heartbeats for TCP connection's keepalive
+				credentials = pika.PlainCredentials(
+					username = self.username,
+					password = self.password
+				)
+			)
+        )
+
+	def send(self, send_queue, message, priority): # Basic producer method
+		send_channel = self.connection().channel()
+		send_channel.queue_declare(
+			queue = send_queue,
+			durable = True,
+			arguments = {'x-max-priority': 10}
+		)
+		send_channel.basic_publish(
+			exchange = '',
+			routing_key = send_queue,
+			body = message,
+			properties = pika.BasicProperties(
+				priority = priority,
+				delivery_mode = 2
+			)
+		)
+
+		return True
+
+
+mq = RabbitMQ()
+mq.send('kuyruk', 'naber', 9)
+```
+
+RabbitMQ da herhangi bir kuyruğa öncelik `priority` eklemek istersek bunu kuyruk tanımlama aşamasında yapmamız gerekiyor (`.queue_declare()`). Öncelik tanımlamak için `0-255` arasında `int` tam sayılar kullanılır fakat resmi dökümanda `0-10` arasında verilmesi öneriliyor bizde yukarıdaki kodda `kuyruk` tanımlaması yapar iken `arguments = {'x-max-priority': 10}` satırında maksimum önceliğin `10` değerine sahip olmasını istedik. Kuyruğa veri `publish` ederken ise bu önceliği belirtmemiz gerekiyor çünkü bizim kuyruğumuz artık bir öncelik `priority` özelliği alıyor. `send()` metodu içerisinde `.basic_publish()` metodu kullanılır iken `properties` (özellikler) kısmında `priority = priority` şeklinde belirtilmiştir. Producer'da yaptığımız bu değişiklikler consumer tarafında da değişime yol açacaktır, önceliğe `priority` sahip bir kuyruğun consumer kodları aşağıdaki gibi olacaktır.
+
+```python
+from json import dumps
+import pika
+
+class RabbitMQ: # RabbitMQ class_
+
+	### Initialized function for RabbitMQ class_ ###
+
+	def __init__(self, host = '127.0.0.1', port = 5672, username = 'guest', password = 'guest'):
+		self.host = host
+		self.port = port
+		self.username = username
+		self.password = password
+
+		return None
+
+	def connection(self): # Returns RabbitMQ connection
+		return pika.BlockingConnection(
+            pika.ConnectionParameters(
+				host = self.host,
+				port = self.port,
+				heartbeat = 0, # Set disable Heartbeats for TCP connection's keepalive
+				credentials = pika.PlainCredentials(
+					username = self.username,
+					password = self.password
+				)
+			)
+        )
+
+	def recv(self, recv_queue, func):
+		recv_channel = self.connection().channel()
+		recv_channel.queue_declare(
+			queue = recv_queue,
+			durable = True,
+			arguments = {'x-max-priority': 10}
+		)
+
+		recv_channel.basic_qos(prefetch_count = 1)
+
+		recv_channel.basic_consume(
+			queue = recv_queue,
+			on_message_callback = func
+		)
+
+		recv_channel.start_consuming()
+
+		return True
+
+	def work(self, ch, method, properties, body):
+		print(body.decode())
+		print(properties.priority)
+		ch.basic_ack(delivery_tag = method.delivery_tag)
+		return True
+
+mq = RabbitMQ()
+mq.recv('kuyruk', mq.work)
+```
+
+Burada yapılan işte, alınan veri ekrana basılmış hemen ardından `properties.priority` şeklinde öncelik değeri ekrana basılmış.
