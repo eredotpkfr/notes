@@ -445,3 +445,56 @@ def topla(a, b):
 print(topla(1,1))
 ```
 
+### Python Critical Section and Race Condition
+
+Aşağıdaki örnek bir python kodunu incelediğimizde 2 farklı fonksiyonumuz var, bu fonksiyonlardan `producer` olan `self.__var` değerini 10 arttırıyor, `consumer` ise 10 azaltıyor. Buradaki 2 fonksiyonda tek bir değişken üzerinde değişiklik yapıyor ve biz bu 2 fonksiyonu arkada bir `thread` olarak başlattığımızda bu 2 fonksiyon hiçbir şeye bakmadan sadece kendilerine verilen görevi yapacaktır ve `race condition`'a girecekler `consumer` fonksiyonu `producer`'ın bittiğini beklemeden direkt değeri azaltmaya çalışacak bunu aynı şekilde `producer`da yapacak ve çıktımız çok saça bir hal alacak şöyleki; `50, 49, 48, 51, 52, 53, 54, 47...` fakat biz önce `producer`'ın çalışmasını ve 50 olan değerin 60 olmasını daha sonra ardından `consumer`  çalışmasını istiyoruz ve çıktımız tekrardan 50 ile bitmeli. İşte 2 fonksiyonda aynı değişken üzerinde işlem yaptığı için 2 fonksiyonda `Critical Section` (Kritik Bölge)'ye giriyor, bizim burada kodda dememiz lazımki `producer` sen `Critical Section`'a girdin ve `producer` `Critical Section`'dayken başka kimse `self.__var` değişkeninin değerini değiştirmesin şeklinde belirtmemiz gerekiyor bunu ise `threading.Lock()` class'ı ile yapıyoruz.
+
+```python
+#!/usr/bin/python3
+
+from threading import Thread, Lock
+
+class CriticalSection:
+
+	def __init__(self):
+		self.__var = 50
+		self.__lock = Lock()
+
+		return None
+
+	def producer(self):
+		self.__lock.acquire()
+		for _ in range(0, 10):
+			self.__var += 1
+			print(self.__var)
+		self.__lock.release()
+
+
+#		Lock with "with" statement :)
+
+#		with self.__lock:
+#			for _ in range(0, 10):
+#				self.__var += 1
+#				print(self.__var)
+
+	def consumer(self):
+		self.__lock.acquire()
+		for _ in range(0, 10):
+			self.__var -= 1
+			print(self.__var)
+		self.__lock.release()
+
+#		Lock with "with" statement :)
+
+#		with self.__lock:
+#			for _ in range(0, 10):
+#				self.__var -= 1
+#				print(self.__var)
+
+
+section = CriticalSection()
+
+Thread(target = section.producer).start()
+Thread(target = section.consumer).start()
+```
+
