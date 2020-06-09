@@ -309,6 +309,8 @@ mq.send('kuyruk', 'naber', 9)
 
 RabbitMQ da herhangi bir kuyruğa öncelik `priority` eklemek istersek bunu kuyruk tanımlama aşamasında yapmamız gerekiyor (`.queue_declare()`). Öncelik tanımlamak için `0-255` arasında `int` tam sayılar kullanılır fakat resmi dökümanda `0-10` arasında verilmesi öneriliyor bizde yukarıdaki kodda `kuyruk` tanımlaması yapar iken `arguments = {'x-max-priority': 10}` satırında maksimum önceliğin `10` değerine sahip olmasını istedik. Kuyruğa veri `publish` ederken ise bu önceliği belirtmemiz gerekiyor çünkü bizim kuyruğumuz artık bir öncelik `priority` özelliği alıyor. `send()` metodu içerisinde `.basic_publish()` metodu kullanılır iken `properties` (özellikler) kısmında `priority = priority` şeklinde belirtilmiştir. Producer'da yaptığımız bu değişiklikler consumer tarafında da değişime yol açacaktır, önceliğe `priority` sahip bir kuyruğun consumer kodları aşağıdaki gibi olacaktır.
 
+#### consumer.py
+
 ```python
 from json import dumps
 import pika
