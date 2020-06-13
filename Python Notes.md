@@ -1,5 +1,3 @@
-
-
 ## Python Notes
 
 ### Python simple HTTP Server
@@ -498,3 +496,71 @@ Thread(target = section.producer).start()
 Thread(target = section.consumer).start()
 ```
 
+### Python run function every day in specific time 
+
+```python
+#!/usr/bin/python3
+
+from datetime import datetime
+from threading import Timer
+
+class class_:
+
+	def __init__(self):
+		pass
+
+	def start(self):
+		sec = self.calculate_seconds()
+		print('Function starts after {} seconds'.format(sec))
+
+		thread_timer = Timer(
+			sec,
+			self.work,
+			args = ['Hello!']
+		)
+
+		thread_timer.setDaemon(False)
+		thread_timer.start()
+		thread_timer.join()
+
+		self.start()
+
+		"""
+					OUTPUT
+
+		Function starts after 2 seconds
+		Hello!
+		Function starts after 2 seconds
+		Hello!
+		Function starts after 2 seconds
+
+		"""
+
+		return None
+
+
+	def work(self, msg):
+		print(msg)
+
+	def calculate_seconds(self):
+		today = datetime.today()
+
+		tomorrow = today.replace(
+			day = today.day, # today.day + 1 // set day tomorrow
+			hour = today.hour, # set hour // 12
+			minute = today.minute, # set minute // 0
+			second = today.second + 2, # set second // 0
+			microsecond = 0 # set microseconds // 0
+
+			# This configrations works run `work` method
+			# every day at 12:00 clock
+		)
+
+		return (tomorrow - today).seconds + 1
+
+if __name__ == '__main__':
+	object = class_()
+	object.start()
+```
+
+Yukarıdaki kod, bügünün tarhini ve saatini esas alarak yeni bir tarih ve saat belirler ve bunu saniye cinsinden belirtir daha sonra `Timer()` objesine saniyeyi vererek o tarihte ve saatte fonksiyonun çalışması sağlanır. `.calculate_seconds()` metodunda gerekli hesaplamalar yapılmış istenilirse her gün saat `14:00` da belirli işlemler yaptırılabilir.
