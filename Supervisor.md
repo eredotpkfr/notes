@@ -51,3 +51,13 @@ Supervisor `9001`. porttan hizmet veren bir arayüze sahiptir. `http://localhost
 #### Konfigrasyon dosyanız yoksa!
 
 `echo_supervisord_conf` komutu ile `supervisor` konfigrasyonlarınızı ekrana basabilirsiniz, eğerki `/etc/supervisor/supervisord.conf` dosyanız eksik ise `echo_supervisord_conf > /etc/supervisord.conf` komutu ile telafi edebilirsiniz.
+
+### WebUI Aktif Etmek İstersek
+
+Supervisor'un WebUI kısmını aktif etmek için `/etc/supervisor/supervisord.conf` konfigrasyon dosyasına aşağıdaki satırları eklememiz yeter, `9001`. porttan hizmet verecektir. 
+
+```shell
+[inet_http_server]
+port=127.0.0.1:9001
+```
+
