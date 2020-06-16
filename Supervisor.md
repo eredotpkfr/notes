@@ -34,3 +34,20 @@ Supervisor'un komut satırı istemci `supervisorctl` olarak adlandırılır.
 
 Supervisor `9001`. porttan hizmet veren bir arayüze sahiptir. `http://localhost:9001/`
 
+### Kurulum
+
+`sudo apt-cache show supervisor` komutu ile paket ayrıntılarını ve bağımlı olduğu diğer paketleri görebiliriz. `sudo apt-get install supervisor` komutu ile `apt` paket yöneticisinden kolaylıkla sistemimize kurabiliriz.
+
+`sudo systemctl disable supervisor.service` komutu ile bilgisayarımız başlatıldığı anda `supervisor`un başlatılmamasını sağlayabiliriz.
+
+`sudo systemctl enable supervisor.service` komutu ile bilgisayarımız açıldığında `supervisor` serviside otomatik olarak başlatılacaktır.
+
+`sudo service supervisor status` servis durumu.
+
+`sudo service supervisor start` servisi başlatır.
+
+`sudo service supervisor stop` servisi durdurur.
+
+#### Konfigrasyon dosyanız yoksa!
+
+`echo_supervisord_conf` komutu ile `supervisor` konfigrasyonlarınızı ekrana basabilirsiniz, eğerki `/etc/supervisor/supervisord.conf` dosyanız eksik ise `echo_supervisord_conf > /etc/supervisord.conf` komutu ile telafi edebilirsiniz.
