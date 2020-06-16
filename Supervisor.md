@@ -16,7 +16,7 @@ Unix teki processlerin durumunu saptamak oldukça zordur, `PID` dosyaları gerç
 
 #### Process Grupları
 
-Process ler bazen belirli gruplarla başlatılması yada durdurulması gerekebilir, supervisor Supervisor işlemlerinize öncelik ekleyerek bunu yapmanıza imkan tanır.
+Process ler bazen belirli gruplarla başlatılması yada durdurulması gerekebilir, `supervisor` işlemlerinize öncelik ekleyerek bunu yapmanıza imkan tanır.
 
 ### Bileşenleri
 
@@ -28,7 +28,7 @@ Supervisor'un sunucu tarafındaki bileşenine `supervisord` denir. Alt programla
 
 #### supervisorctl
 
-Supervisor'un komut satırı istemci `supervisorctl` olarak adlandırılır.
+Supervisor'un komut satırı istemcisi `supervisorctl` olarak adlandırılır.
 
 #### Web Server
 
