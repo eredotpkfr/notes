@@ -283,6 +283,32 @@ class RabbitMQ: # RabbitMQ class_
 			)
         )
 
+""" Send data with one connection
+
+    def my_queue_declare(self, send_queue):
+        self.send_channel = self.connection().channel()
+        self.send_channel.queue_declare(
+            queue = send_queue,
+            durable = True,
+            arguments = {'x-max-priority': 10}
+        )
+        
+        return True
+
+	def send(self, message, priority):      
+        self.send_channel.basic_publish(
+            exchange = '',
+            routing_key = send_queue,
+            body = message,
+            properties = pika.BasicProperties(
+                priority = priority,
+                delivery_mode = 2
+            )
+        )
+        
+        return True
+"""
+
 	def send(self, send_queue, message, priority): # Basic producer method
 		send_channel = self.connection().channel()
 		send_channel.queue_declare(
