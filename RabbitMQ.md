@@ -55,7 +55,7 @@ sudo service rabbitmq-server restart # yeniden başlatır.
 
 ### Python ile RabbitMQ entegrasyonu
 
-`RabbitMQ` default olarak `5672`. portta çalışır. `RabbitMQ`'nun `WebUI` kısmını aktif etmek istersek `rabbitmq-plugins enable rabbitmq_management` şeklinde komut çalıştırmamız gerekir, `WebUI` ise default olarak `15672`. portta çalışır. `http://127.0.0.1:15672/`.
+`RabbitMQ` default olarak `5672`. portta çalışır. `RabbitMQ`'nun `WebUI` kısmını aktif etmek istersek `rabbitmq-plugins enable rabbitmq_management` şeklinde komut çalıştırmamız gerekir, `WebUI` ise default olarak `15672`. portta çalışır. `http://127.0.0.1:15672/` - `guest:guest` credentials ile giriş yapabilirsiniz.
 
 Python ile `RabbitMQ` servisine bağlanmak için `pika` isminde bir modül kullanmamız gerekiyor, modülü yüklemek için `pip3 install pika --upgrade` şeklinde bir komut çalıştırmak yeterli.
 
