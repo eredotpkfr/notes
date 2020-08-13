@@ -662,7 +662,7 @@ class MetaRegistry(type):
 
     def __new__(meta, name, bases, class_dict):
         cls = type.__new__(meta, name, bases, class_dict)
-        if name not in registry:
+        if name not in REGISTRY:
             register_class(cls)
         return cls
 
