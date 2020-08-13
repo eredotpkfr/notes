@@ -496,7 +496,7 @@ Thread(target = section.producer).start()
 Thread(target = section.consumer).start()
 ```
 
-### Python run function every day in specific time 
+### Python run function every day in specific time
 
 ```python
 #!/usr/bin/python3
@@ -564,3 +564,111 @@ if __name__ == '__main__':
 ```
 
 Yukarıdaki kod, bügünün tarhini ve saatini esas alarak yeni bir tarih ve saat belirler ve bunu saniye cinsinden belirtir daha sonra `Timer()` objesine saniyeyi vererek o tarihte ve saatte fonksiyonun çalışması sağlanır. `.calculate_seconds()` metodunda gerekli hesaplamalar yapılmış istenilirse her gün saat `14:00` da belirli işlemler yaptırılabilir.
+
+### Python daily logger with custom formatter
+
+```python
+#!/usr/bin/python3
+
+from logging import handlers
+from logging import Logger, Formatter, ERROR, DEBUG, INFO, WARNING
+from time import sleep
+import os
+import datetime
+
+class MyFormatter(Formatter):
+
+	FORMATS = {
+		DEBUG : '%(asctime)s | %(levelname)s, %(type)s, %(status_code)s, %(url)s, %(message)s',
+		ERROR : '%(asctime)s | %(levelname)s, %(type)s, %(url)s, %(error)s, %(message)s',
+		INFO : '%(asctime)s | %(levelname)s, %(type)s, %(url)s, %(message)s',
+		WARNING: '%(asctime)s | %(levelname)s, %(status_code)s, %(url)s, %(error)s, %(message)s',
+        'DEFAULT' : "%(levelname)s: %(message)s"
+	}
+
+	def format(self, record):
+		log_fmt = self.FORMATS.get(record.levelno)
+		formatter = Formatter(log_fmt)
+
+		return formatter.format(record)
+
+
+class SetupLogger(Logger):
+
+	def __init__(self, name, directory):
+		super().__init__(name)
+		self.set_handler(directory)
+
+	def set_handler(self, direc_):
+		handler = DailyRotatingFileHandler(direc_)
+		handler.setFormatter(MyFormatter())
+
+		self.addHandler(handler)
+
+class DailyRotatingFileHandler(handlers.RotatingFileHandler):
+
+	def __init__(self, basedir, mode = 'a', maxBytes = 0, backupCount = 0, encoding = None, delay = 0):
+		self.basedir_ = basedir
+		self.baseFilename = self.getBaseFilename()
+
+		handlers.RotatingFileHandler.__init__(self, self.baseFilename, mode, maxBytes, backupCount, encoding, delay)
+
+	def getBaseFilename(self):
+		self.today_ = datetime.date.today()
+		basename_ = self.today_.strftime('%Y-%m-%d') + '.log' # File names
+
+		return os.path.join(self.basedir_, basename_)
+
+	def shouldRollover(self, record):
+		if self.stream is None:
+			self.stream = self._open()
+
+		if self.maxBytes > 0 :
+			msg = "%s\n" % self.format(record)
+			self.stream.seek(0, 2)
+			if self.stream.tell() + len(msg) >= self.maxBytes:
+				return 1
+
+		if self.today_ != datetime.date.today(): # Check date
+			self.baseFilename = self.getBaseFilename()
+			return 1
+
+		return 0
+
+### SIMPLE USAGE ###
+
+logger = SetupLogger(
+	name = 'logger',
+	directory = './logs/'
+)
+
+while True:
+	logger.setLevel(INFO)
+	add = {'type': 'url', 'url': 'https://www.example.com/'}
+	logger.info('info message', extra = add)
+	sleep(10)
+```
+
+### Python auto register class when it's defined and dynamic class creation with metaclass
+
+```python
+REGISTRY = {}
+
+
+def register_class(target_class):
+    REGISTRY[target_class.__name__] = target_class
+
+
+class MetaRegistry(type):
+
+    def __new__(meta, name, bases, class_dict):
+        cls = type.__new__(meta, name, bases, class_dict)
+        if name not in registry:
+            register_class(cls)
+        return cls
+
+
+class BaseClass(metaclass=MetaRegistry):
+    pass
+```
+
