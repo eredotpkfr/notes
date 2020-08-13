@@ -654,7 +654,6 @@ while True:
 ```python
 REGISTRY = {}
 
-
 def register_class(target_class):
     REGISTRY[target_class.__name__] = target_class
 
