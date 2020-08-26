@@ -671,3 +671,22 @@ class BaseClass(metaclass=MetaRegistry):
     pass
 ```
 
+### Python get return value from any thread with queue module
+
+```python
+from queue import Queue
+from threading import Thread
+
+def foo(bar):
+    print('hello {0}'.format(bar))
+    return 'foo'
+
+que = Queue()
+
+t = Thread(target=lambda q, arg1: q.put(foo(arg1)), args=(que, 'world!'))
+t.start()
+t.join()
+result = que.get()
+print(result)
+```
+
