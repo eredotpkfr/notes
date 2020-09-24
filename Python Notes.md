@@ -17,7 +17,7 @@ kısa bir test yapılacaksa oldukça kullanışlı `sudo python3 -m http.server 
 
 ### Python import all modules in directory
 
-In `__İnit__.py`
+In `__init__.py`
 
 ```python
 from os.path import dirname, basename, isfile, join
