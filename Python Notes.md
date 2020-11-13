@@ -720,3 +720,42 @@ result = que.get()
 print(result)
 ```
 
+### Python re-run any thread with Event objects
+
+```python
+import threading
+from time import sleep
+
+class worker(threading.Thread):
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.keepgoing = threading.Event()
+		self.keepgoing.set()
+		self.startprocess = threading.Event()
+		self.startprocess.clear()
+
+	def run(self):
+		while self.keepgoing:
+			if self.startprocess.isSet():
+				print('test')
+				sleep(2)
+			else:
+				self.startprocess.wait()
+
+	def start_(self):
+		self.startprocess.clear()
+		self.startprocess.set()
+
+	def stop_(self):
+		self.startprocess.clear()
+
+
+w = worker(); w.start()
+print('Started')
+w.start_()
+sleep(5)
+w.stop_(); print('Stopped')
+sleep(10)
+w.start_(); print('re-run')
+```
+
