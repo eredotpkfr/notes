@@ -720,42 +720,90 @@ result = que.get()
 print(result)
 ```
 
-### Python re-run any thread with Event objects
+### Python call function every spesific time and re-run thread with Event objects
 
 ```python
 import threading
 from time import sleep
 
-class worker(threading.Thread):
-	def __init__(self, *args, **kwargs):
+class Worker(threading.Thread):
+	def __init__(self, interval, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.keepgoing = threading.Event()
 		self.keepgoing.set()
 		self.startprocess = threading.Event()
-		self.startprocess.clear()
+		self.startprocess.set()
+		self._interval = interval
 
 	def run(self):
 		while self.keepgoing:
-			if self.startprocess.isSet():
-				print('test')
-				sleep(2)
-			else:
-				self.startprocess.wait()
+			while self.startprocess.isSet():
+				self._target(*self._args, **self._kwargs)
+				sleep(self._interval)
+			self.startprocess.wait()
 
-	def start_(self):
+	def restart(self):
 		self.startprocess.clear()
 		self.startprocess.set()
 
-	def stop_(self):
+	def stop(self):
 		self.startprocess.clear()
 
+	def kill(self):
+		self.stop()
+		self.keepgoing.clear()
 
-w = worker(); w.start()
+
+def printf(str):
+	print(str)
+
+w = Worker(2, target=printf, args=['<test>'], daemon=True)
 print('Started')
-w.start_()
+w.start()
+
 sleep(5)
-w.stop_(); print('Stopped')
+w.stop()
+print('Stopped')
+
 sleep(10)
-w.start_(); print('re-run')
+w.restart()
+print('re-run')
+
+sleep(2)
+w.kill()
+```
+
+### Python repeated timer without `Timer` object, if `Timer` object not used, you can stop thread any time you want
+
+```python
+from threading import Thread, Event
+from time import sleep
+
+class RepeatedFunction(Thread):
+	def __init__(self, interval, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.stopped = Event()
+		self._interval = interval
+
+	def run(self):
+		while not self.stopped.wait(self._interval):
+			self._target(*self._args, **self._kwargs)
+
+	def stop(self):
+		self.stopped.set()
+
+def printf(str_=False):
+	print(str(str_))
+
+t = RepeatedFunction(
+	1,
+	target=printf,
+	kwargs={'str_': True},
+	daemon=True
+)
+
+t.start()
+sleep(2)
+t.stop()
 ```
 
