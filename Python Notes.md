@@ -730,12 +730,13 @@ class Worker(threading.Thread):
 	def __init__(self, interval, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.keepgoing = threading.Event()
-		self.keepgoing.set()
+		self.keepgoing.clear()
 		self.startprocess = threading.Event()
 		self.startprocess.set()
 		self._interval = interval
 
 	def run(self):
+        self.keepgoing.set()
 		while self.keepgoing:
 			while self.startprocess.isSet():
 				self._target(*self._args, **self._kwargs)
