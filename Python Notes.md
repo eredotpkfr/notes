@@ -603,16 +603,16 @@ Yukarıdaki kod, bügünün tarhini ve saatini esas alarak yeni bir tarih ve saa
 from logging import handlers
 from logging import Logger, Formatter, ERROR, DEBUG, INFO, WARNING
 from time import sleep
-import os
+from os import path, getcwd, makedirs
 import datetime
 
 class MyFormatter(Formatter):
 
 	FORMATS = {
-		DEBUG : '%(asctime)s | %(levelname)s, %(type)s, %(status_code)s, %(url)s, %(message)s',
-		ERROR : '%(asctime)s | %(levelname)s, %(type)s, %(url)s, %(error)s, %(message)s',
-		INFO : '%(asctime)s | %(levelname)s, %(type)s, %(url)s, %(message)s',
-		WARNING: '%(asctime)s | %(levelname)s, %(status_code)s, %(url)s, %(error)s, %(message)s',
+		DEBUG : '%(asctime)s | %(levelname)s, %(status_code)s, %(url)s, %(message)s',
+		ERROR : '%(asctime)s | %(levelname)s, %(url)s, %(error)s, %(message)s',
+		INFO : '%(asctime)s | %(levelname)s, %(message)s',
+#		WARNING: '%(asctime)s | %(levelname)s, %(status_code)s, %(url)s, %(error)s, %(message)s',
         'DEFAULT' : "%(levelname)s: %(message)s"
 	}
 
@@ -625,29 +625,34 @@ class MyFormatter(Formatter):
 
 class SetupLogger(Logger):
 
-	def __init__(self, name, directory):
+	def __init__(self, name, directory, prefix='log'):
 		super().__init__(name)
-		self.set_handler(directory)
 
-	def set_handler(self, direc_):
-		handler = DailyRotatingFileHandler(direc_)
+		if not path.exists(path.join(getcwd(), directory)):
+			makedirs(directory)
+
+		self.set_handler(directory, prefix)
+
+	def set_handler(self, direc_, pref):
+		handler = DailyRotatingFileHandler(direc_, pfx=pref)
 		handler.setFormatter(MyFormatter())
 
 		self.addHandler(handler)
 
 class DailyRotatingFileHandler(handlers.RotatingFileHandler):
 
-	def __init__(self, basedir, mode = 'a', maxBytes = 0, backupCount = 0, encoding = None, delay = 0):
+	def __init__(self, basedir, mode='a', maxBytes=0, backupCount=0, encoding=None, delay=0, pfx='log'):
+		self.prefix = pfx
 		self.basedir_ = basedir
-		self.baseFilename = self.getBaseFilename()
+		self.baseFilename = self.get_base_filename()
 
 		handlers.RotatingFileHandler.__init__(self, self.baseFilename, mode, maxBytes, backupCount, encoding, delay)
 
-	def getBaseFilename(self):
+	def get_base_filename(self):
 		self.today_ = datetime.date.today()
-		basename_ = self.today_.strftime('%Y-%m-%d') + '.log' # File names
+		basename_ = self.prefix + '.' + self.today_.strftime('%Y-%m-%d') + '.log' # File names
 
-		return os.path.join(self.basedir_, basename_)
+		return path.join(self.basedir_, basename_)
 
 	def shouldRollover(self, record):
 		if self.stream is None:
@@ -660,23 +665,12 @@ class DailyRotatingFileHandler(handlers.RotatingFileHandler):
 				return 1
 
 		if self.today_ != datetime.date.today(): # Check date
-			self.baseFilename = self.getBaseFilename()
+			self.baseFilename = self.get_base_filename()
 			return 1
 
 		return 0
-
-### SIMPLE USAGE ###
-
-logger = SetupLogger(
-	name = 'logger',
-	directory = './logs/'
-)
-
-while True:
-	logger.setLevel(INFO)
-	add = {'type': 'url', 'url': 'https://www.example.com/'}
-	logger.info('info message', extra = add)
-	sleep(10)
+    
+logger = SetupLogger('name', './logs/')
 ```
 
 ### Python auto register class when it's defined and dynamic class creation with metaclass
