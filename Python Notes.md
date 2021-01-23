@@ -860,7 +860,9 @@ class MongoDB(MongoClient):
 			else:
 				operations.append(UpdateOne(
 					{'_id': exists.get('_id')},
-					{'$set': {'last_seen': datetime.now(), 'count': exists.get('count')+1}}
+					{'$set': {
+                        'last_seen': datetime.now(), 'count': exists.get('count')+1
+                    }}
 				))
 
 		self.collection.bulk_write(operations)
