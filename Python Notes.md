@@ -859,8 +859,8 @@ class MongoDB(MongoClient):
 				operations.append(InsertOne(data))
 			else:
 				operations.append(UpdateOne(
-					{'_id': exists.get('_id')},
-					{'$set': {
+                    {'_id': exists.get('_id')},
+                    {'$set': {
                         'last_seen': datetime.now(), 'count': exists.get('count')+1
                     }}
 				))
