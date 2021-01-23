@@ -844,32 +844,32 @@ class MongoDB(MongoClient):
 	DB_NAME = 'test_db'
 
 	def __init__(self, *args, **kwargs):
-		super().__init__(*args, **kwargs)
-		self.db = self[self.DB_NAME]
-
-	def insert_collection(self, collection_name, datas):
-		self.collection = self.db[collection_name]
-		operations = []
-
-		for data in datas:
-			exists = self.exists(data)
-			if not exists:
-				now = datetime.now()
-				data.update({'first_seen': now, 'last_seen': now, 'count': 1})
-				operations.append(InsertOne(data))
-			else:
-				operations.append(UpdateOne(
+        super().__init__(*args, **kwargs)
+        self.db = self[self.DB_NAME]
+	
+    def insert_collection(self, collection_name, datas):
+        self.collection = self.db[collection_name]
+        operations = []
+        
+        for data in datas:
+            exists = self.exists(data)
+            if not exists:
+                now = datetime.now()
+                data.update({'first_seen': now, 'last_seen': now, 'count': 1})
+                operations.append(InsertOne(data))
+         	else:
+                operations.append(UpdateOne(
                     {'_id': exists.get('_id')},
                     {'$set': {
                         'last_seen': datetime.now(), 'count': exists.get('count')+1
                     }}
-				))
+                ))
 
-		self.collection.bulk_write(operations)
+    	self.collection.bulk_write(operations)
 
-	def exists(self, which_data):
-		if self.collection.count_documents(which_data) == 0:
-			return False
-		return self.collection.find_one(which_data)
+ 	def exists(self, which_data):
+        if self.collection.count_documents(which_data) == 0:
+            return False
+        return self.collection.find_one(which_data)
 ```
 
