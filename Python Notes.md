@@ -866,8 +866,7 @@ class MongoDB(MongoClient):
                 ))
 
     	self.collection.bulk_write(operations)
-        
-	def exists(self, which_data):
+   	def exists(self, which_data):
         if self.collection.count_documents(which_data) == 0:
             return False
         return self.collection.find_one(which_data)
