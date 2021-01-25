@@ -873,3 +873,30 @@ class MongoDB(MongoClient):
         return self.collection.find_one(which_data)
 ```
 
+### Python simple SingleTon structure
+
+```python
+#!/usr/bin/python3
+
+class SingleTon(object):
+
+	__instance__ = None
+
+	def __new__(cls, *args, **kwargs):
+		if cls.__instance__ is None:
+			cls.__instance__ = super().__new__(cls, *args, **kwargs)
+
+		return cls.__instance__
+
+	def __init__(self):
+		if not hasattr(self, 'var'):
+			self.var = 5
+
+a = SingleTon()
+print(a.var)
+a.var += 1
+
+b = SingleTon()
+print(b.var)
+```
+
