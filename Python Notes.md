@@ -913,3 +913,17 @@ print(a is b)
 print(a(), b())
 ```
 
+### Python changing logging's `basicConfig(` which is already set
+
+```python
+# Example to remove all root logger handlers and reconfigure. (UNTESTED)
+import logging
+
+# Remove all handlers associated with the root logger object.
+for handler in logging.root.handlers[:]:
+    logging.root.removeHandler(handler)
+
+# Reconfigure logging again, this time with a file.
+logging.basicConfig(filename = 'myfile.log', level=logging.DEBUG, format='%(filename)s:%(lineno)s %(levelname)s:%(message)s')
+```
+
