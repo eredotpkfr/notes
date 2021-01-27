@@ -880,23 +880,36 @@ class MongoDB(MongoClient):
 
 class SingleTon(object):
 
-	__instance__ = None
+	# __instance__ = None
 
 	def __new__(cls, *args, **kwargs):
-		if cls.__instance__ is None:
-			cls.__instance__ = super().__new__(cls, *args, **kwargs)
+		# if cls.__instance__ is None:
+		#	cls.__instance__ = super().__new__(cls, *args, **kwargs)
+		# return cls.__instance
 
-		return cls.__instance__
+		if not hasattr(cls, 'instance'):
+			cls.instance = super().__new__(cls, *args, **kwargs)
+
+		return cls.instance
+
 
 	def __init__(self):
-		if not hasattr(self, 'var'):
-			self.var = 5
+		if not hasattr(self, 'x'):
+			self.x = 5
+
+	def __call__(self):
+		return self.x
+
 
 a = SingleTon()
-print(a.var)
-a.var += 1
+print(a.x)
+a.x += 5
 
 b = SingleTon()
-print(b.var)
+print(b.x)
+
+print(a, b, sep='\n')
+print(a is b)
+print(a(), b())
 ```
 
