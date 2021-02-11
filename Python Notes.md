@@ -926,4 +926,3 @@ for handler in logging.root.handlers[:]:
 # Reconfigure logging again, this time with a file.
 logging.basicConfig(filename = 'myfile.log', level=logging.DEBUG, format='%(filename)s:%(lineno)s %(levelname)s:%(message)s')
 ```
-
