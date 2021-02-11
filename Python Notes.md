@@ -926,3 +926,38 @@ for handler in logging.root.handlers[:]:
 # Reconfigure logging again, this time with a file.
 logging.basicConfig(filename = 'myfile.log', level=logging.DEBUG, format='%(filename)s:%(lineno)s %(levelname)s:%(message)s')
 ```
+
+### Python single ton with `type` , you can inherit any class with this structure
+
+```python
+#!/usr/bin/python3
+
+class SingleTon(type):
+
+	temp = {}
+
+	def __call__(cls, *args, **kwargs):
+		if cls not in cls.temp:
+			cls.temp[cls] = super(SingleTon, cls).__call__(*args, **kwargs)
+
+		return cls.temp[cls]
+
+class SingleTon2(metaclass=SingleTon):
+
+	def __init__(self):
+		self.x = 5
+
+	def xasdddddddddddddd(self):
+		print('asdasd')
+
+c = SingleTon2()
+d = SingleTon2()
+
+print(c is d)
+print(c,d,sep='\n')
+print(c.x)
+c.x += 5
+print(d.x)
+print(c.x)
+```
+
