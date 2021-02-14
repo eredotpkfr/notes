@@ -961,3 +961,39 @@ print(d.x)
 print(c.x)
 ```
 
+### Python import modules with `os.walk()`
+
+```python
+#!/usr/bin/python3
+
+from os import path, walk
+from sys import modules as sysm
+
+sort_dirs = [
+	'utilities',
+	'scripts',
+	'modules',
+	'configs',
+	'tests'
+]
+
+components = path.dirname(path.realpath(__file__))
+
+for root, dirs, files in sorted(walk(components), key=lambda x: [sort_dirs.index(_) for _ in sort_dirs if _ in x[0]]):
+
+	if root == components:
+		continue
+
+	files = list(filter(lambda x: x.endswith('.py') and x != '__init__.py', files))
+	dirs = list(filter(lambda x: not x == '__pycache__', dirs))
+
+	for py in files:
+		mod_path = path.relpath(root, components).replace('/', '.')
+
+		mod = __import__('.'.join([__name__, mod_path, py[:-3]]), fromlist=[py])
+		classes = [getattr(mod, x) for x in dir(mod) if isinstance(getattr(mod, x), type)]
+
+		for cls in classes:
+			setattr(sysm[__name__], cls.__name__, cls)
+```
+
