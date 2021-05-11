@@ -32,15 +32,20 @@ __all__ = [ basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('_
 In `__init__.py`
 
 ```python
-import os, sys
+#!/usr/bin/python3
 
-path = os.path.dirname(os.path.abspath(__file__))
+from os import path as _path, listdir as _listdir
+from sys import modules as _sysm
 
-for py in [f[:-3] for f in os.listdir(path) if f.endswith('.py') and f != '__init__.py']:
-    mod = __import__('.'.join([__name__, py]), fromlist=[py])
-    classes = [getattr(mod, x) for x in dir(mod) if isinstance(getattr(mod, x), type)]
-    for cls in classes:
-        setattr(sys.modules[__name__], cls.__name__, cls)
+_new_path = _path.dirname(_path.abspath(__file__))
+
+for _py in [f[:-3] for f in _listdir(_new_path) if f.endswith('.py') and f != '__init__.py']:
+
+    _mod = __import__('.'.join([__name__, _py]), fromlist=[_py])
+    _classes = [getattr(_mod, x) for x in dir(_mod) if isinstance(getattr(_mod, x), type)]
+
+    for _cls in _classes:
+        setattr(_sysm[__name__], _cls.__name__, _cls)
 ```
 
 
@@ -966,34 +971,28 @@ print(c.x)
 ```python
 #!/usr/bin/python3
 
-from os import path, walk
-from sys import modules as sysm
+from os import path as _path, walk as _walk
+from sys import modules as _sysm
 
-sort_dirs = [
-	'utilities',
-	'scripts',
-	'modules',
-	'configs',
-	'tests'
-]
+_modules_path = _path.dirname(_path.realpath(__file__))
 
-components = path.dirname(path.realpath(__file__))
+for _root, _dirs, _files in _walk(_modules_path):
 
-for root, dirs, files in sorted(walk(components), key=lambda x: [sort_dirs.index(_) for _ in sort_dirs if _ in x[0]]):
+    _files = list(filter(lambda x: x.endswith('.py') and x != '__init__.py', _files))
 
-	if root == components:
-		continue
+    for _py in _files:
+        _mod_path = _path.relpath(_root, _modules_path).replace('/', '.')
 
-	files = list(filter(lambda x: x.endswith('.py') and x != '__init__.py', files))
-	dirs = list(filter(lambda x: not x == '__pycache__', dirs))
+        if _mod_path == '.':
+            _mod_path = '.'.join([__name__, _py[:-3]])
+        else:
+            _mod_path = '.'.join([__name__, _mod_path, _py[:-3]])
 
-	for py in files:
-		mod_path = path.relpath(root, components).replace('/', '.')
+        _mod = __import__(_mod_path, fromlist=[_py[:-3]])
+        _classes = [getattr(_mod, x) for x in dir(_mod) if isinstance(getattr(_mod, x), type)]
 
-		mod = __import__('.'.join([__name__, mod_path, py[:-3]]), fromlist=[py])
-		classes = [getattr(mod, x) for x in dir(mod) if isinstance(getattr(mod, x), type)]
+        for _cls in _classes:
+            setattr(_sysm[__name__], _cls.__name__, _cls)
 
-		for cls in classes:
-			setattr(sysm[__name__], cls.__name__, cls)
 ```
 
