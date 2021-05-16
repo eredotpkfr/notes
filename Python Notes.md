@@ -20,11 +20,13 @@ kısa bir test yapılacaksa oldukça kullanışlı `sudo python3 -m http.server 
 In `__init__.py`
 
 ```python
-from os.path import dirname, basename, isfile, join
-import glob
+#!/usr/bin/python3
 
-modules = glob.glob(join(dirname(__file__), "*.py"))
-__all__ = [ basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('__init__.py')]
+from os.path import dirname, basename, isfile, join
+from glob import glob
+
+modules = glob(join(dirname(__file__), '*.py'))
+__all__ = [basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('__init__.py')]
 ```
 
 ### Python import all classes in directory
