@@ -82,6 +82,7 @@ class RabbitMQ:
 		self.port = port
 		self.username = username
 		self.password = password
+		self.conn = self.connection()
 
 	def connection(self):
 		return pika.BlockingConnection(pika.ConnectionParameters(
@@ -93,8 +94,11 @@ class RabbitMQ:
 			)
 		)
 
+	def close(self):
+		self.conn.close()
+
 	def send(self, data):
-		channel = self.connection().channel()
+		channel = self.conn.channel()
 		channel.queue_declare(
 			queue = 'kuyruk',
 #			durable = True
@@ -113,6 +117,8 @@ mq = RabbitMQ('127.0.0.1', 5672, 'guest', 'guest')
 
 for _ in data:
 	mq.send(json.dumps(_))
+
+mq.close()
 ```
 
 
@@ -131,6 +137,7 @@ class RabbitMQ:
 		self.port = port
 		self.username = username
 		self.password = password
+		self.conn = self.connection()
 
 	def connection(self):
 		return pika.BlockingConnection(pika.ConnectionParameters(
@@ -141,9 +148,12 @@ class RabbitMQ:
 				)
 			)
 		)
+	
+	def close(self):
+		self.conn.close()
 
 	def get(self):
-		channel = self.connection().channel()
+		channel = self.conn.channel()
 		channel.queue_declare(queue = 'kuyruk')
 		channel.basic_consume(
 			queue = 'kuyruk',
@@ -158,6 +168,7 @@ class RabbitMQ:
 
 mq = RabbitMQ('127.0.0.1', 5672, 'guest', 'guest')
 mq.get()
+mq.close()
 ```
 
 ### Birden fazla worker çalıştırmak
@@ -245,6 +256,7 @@ channel.basic_qos(prefetch_count = 1)
 channel.basic_consume(queue = 'task_queue', on_message_callback = callback)
 
 channel.start_consuming()
+connection.close()
 ```
 
 > #### NOT
@@ -267,8 +279,12 @@ class RabbitMQ: # RabbitMQ class_
 		self.port = port
 		self.username = username
 		self.password = password
+		self.conn = self.connection()
 
 		return None
+
+	def close(self):
+		self.conn.close()
 
 	def connection(self): # Returns RabbitMQ connection
 		return pika.BlockingConnection(
@@ -286,7 +302,7 @@ class RabbitMQ: # RabbitMQ class_
 """ Send data with one connection
 
     def my_queue_declare(self, send_queue):
-        self.send_channel = self.connection().channel()
+        self.send_channel = self.conn.channel()
         self.send_channel.queue_declare(
             queue = send_queue,
             durable = True,
@@ -331,6 +347,7 @@ class RabbitMQ: # RabbitMQ class_
 
 mq = RabbitMQ()
 mq.send('kuyruk', 'naber', 9)
+mq.close()
 ```
 
 RabbitMQ da herhangi bir kuyruğa öncelik `priority` eklemek istersek bunu kuyruk tanımlama aşamasında yapmamız gerekiyor (`.queue_declare()`). Öncelik tanımlamak için `0-255` arasında `int` tam sayılar kullanılır fakat resmi dökümanda `0-10` arasında verilmesi öneriliyor bizde yukarıdaki kodda `kuyruk` tanımlaması yapar iken `arguments = {'x-max-priority': 10}` satırında maksimum önceliğin `10` değerine sahip olmasını istedik. Kuyruğa veri `publish` ederken ise bu önceliği belirtmemiz gerekiyor çünkü bizim kuyruğumuz artık bir öncelik `priority` özelliği alıyor. `send()` metodu içerisinde `.basic_publish()` metodu kullanılır iken `properties` (özellikler) kısmında `priority = priority` şeklinde belirtilmiştir. Producer'da yaptığımız bu değişiklikler consumer tarafında da değişime yol açacaktır, önceliğe `priority` sahip bir kuyruğun consumer kodları aşağıdaki gibi olacaktır.
@@ -350,8 +367,12 @@ class RabbitMQ: # RabbitMQ class_
 		self.port = port
 		self.username = username
 		self.password = password
+		self.conn = self.connection()
 
 		return None
+
+	def close(self):
+		self.conn.close()
 
 	def connection(self): # Returns RabbitMQ connection
 		return pika.BlockingConnection(
@@ -367,7 +388,7 @@ class RabbitMQ: # RabbitMQ class_
         )
 
 	def recv(self, recv_queue, func):
-		recv_channel = self.connection().channel()
+		recv_channel = self.conn.channel()
 		recv_channel.queue_declare(
 			queue = recv_queue,
 			durable = True,
@@ -393,6 +414,7 @@ class RabbitMQ: # RabbitMQ class_
 
 mq = RabbitMQ()
 mq.recv('kuyruk', mq.work)
+mq.close()
 ```
 
 Burada yapılan işte, alınan veri ekrana basılmış hemen ardından `properties.priority` şeklinde öncelik değeri ekrana basılmış.
