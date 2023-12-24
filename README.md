@@ -1,6 +1,2 @@
 ## n0t3s
-H3yy k1d! what are you d0ing here? there is n0thing here, just my f*ck1ng `n0t3s` and `autonote.sh`!
-
-
-
-
+Here is my notes (Used [autonote.sh](https://github.com/eredotpkfr/autonote.sh) script while creating this repository 🤙)
